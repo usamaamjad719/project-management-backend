@@ -1,3 +1,3 @@
-# drf-boilerplate-v1
+# project-management-backend
 
-drf-boilerplate-v1
+project-management-backend
