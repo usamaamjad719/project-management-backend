@@ -7,6 +7,12 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 UserModel = get_user_model()
 
+from .models import (
+    Project,
+    ProjectRole,
+    Comment,
+)
+
 
 class UserInfoSerialzer(serializers.ModelSerializer):
     class Meta:
@@ -72,4 +78,57 @@ class CreateUserSerializer(serializers.ModelSerializer):
         instance.is_visible = True
         instance.save()
         return instance
+
+
+
+class ProjectListSerializer(serializers.ModelSerializer):
+    created_by = UserInfoSerialzer(read_only=True)
+
+    class Meta:
+        model = Project
+        fields = '__all__'
+
+
+
+class ProjectCreateOrUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['name', 'description']
+
+
+
+class ProjectRoleListSerializer(serializers.ModelSerializer):
+    user = UserInfoSerialzer(read_only=True)
+    project = ProjectListSerializer(read_only=True)
+
+    class Meta:
+        model = ProjectRole
+        fields = '__all__'
+
+
+class ProjectRoleCreateOrUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProjectRole
+        fields = ['project', 'role']
+
+
+
+class CommentListSerializer(serializers.ModelSerializer):
+    user = UserInfoSerialzer(read_only=True)
+    project = ProjectListSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+
+
+class CommentCreateOrUpdateSerializer(serializers.ModelSerializer):
+    user = UserInfoSerialzer(read_only=True)
+    project = ProjectListSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['project', 'text']
 

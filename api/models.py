@@ -82,6 +82,10 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def soft_delete(self):
+        self.is_visible = False
+        self.save()
+
 
 # base model which all models should inherit if id is not a primary key
 class NoIDBaseModel(models.Model):
@@ -95,5 +99,46 @@ class NoIDBaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def soft_delete(self):
+        self.is_visible = False
+        self.save()
+
+
+class Project(BaseModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                   related_name='projects', blank=True, null=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
+class ProjectRole(BaseModel):
+    ROLE_CHOICES = [
+        ('OWNER', 'Owner'),
+        ('EDITOR', 'Editor'),
+        ('READER', 'Reader'),
+    ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='project_roles', blank=True, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='user_roles',
+                                blank=True, null=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.name} - {self.role}"
+
+
+class Comment(BaseModel):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,
+                                related_name='comments', blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name='comments', blank=True, null=True)
+    text = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.name}"
 
 
