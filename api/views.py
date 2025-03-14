@@ -21,6 +21,7 @@ from drf_spectacular.utils import (
 from .serializers import *
 from .models import *
 from .custom_apiviews import CustomListCreateAPIView
+from .permissions import *
 
 
 UserModel = get_user_model()
@@ -88,7 +89,7 @@ class RegisterView(views.APIView):
 
 
 class ProjectListCreateAPIView(CustomListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     
@@ -144,7 +145,7 @@ class ProjectListCreateAPIView(CustomListCreateAPIView):
 
 
 class ProjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProjectOwnerOrReadOnly]
     queryset = Project.visible_objects.all()
     http_method_names = ['get', 'put', 'delete']
     lookup_url_kwarg = 'id'
@@ -175,7 +176,7 @@ class ProjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
 
 class ProjectRoleListCreateAPIView(CustomListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     
@@ -235,7 +236,7 @@ class ProjectRoleListCreateAPIView(CustomListCreateAPIView):
 
 
 class ProjectRoleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsProjectRoleOwnerOrReadOnly]
     queryset = ProjectRole.visible_objects.all()
     http_method_names = ['get', 'put', 'delete']
     lookup_url_kwarg = 'id'
@@ -267,7 +268,7 @@ class ProjectRoleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIV
 
 
 class CommentListCreateAPIView(CustomListCreateAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     
@@ -327,7 +328,7 @@ class CommentListCreateAPIView(CustomListCreateAPIView):
 
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCommentOwnerOrReadOnly]
     queryset = Comment.visible_objects.all()
     http_method_names = ['get', 'put', 'delete']
     lookup_url_kwarg = 'id'
