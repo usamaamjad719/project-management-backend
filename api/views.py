@@ -109,7 +109,7 @@ class ProjectListCreateAPIView(CustomListCreateAPIView):
     }
     
     def get_queryset(self):
-        return Project.visible_objects.all().order_by('-created_at')
+        return Project.visible_objects.select_related('created_by').order_by('-created_at')
 
     def get_serializer_class(self):
         method = self.request.method
@@ -122,7 +122,18 @@ class ProjectListCreateAPIView(CustomListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
     
-    @extend_schema(tags=['Project'])
+    
+    @extend_schema(
+        tags=['Project'],
+        parameters=[
+            OpenApiParameter(
+                name='disablePagination',
+                description='Set to true to disable pagination and return all results',
+                required=False,
+                type=bool
+            )
+        ]
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -190,7 +201,7 @@ class ProjectRoleListCreateAPIView(CustomListCreateAPIView):
     }
     
     def get_queryset(self):
-        return ProjectRole.visible_objects.all().order_by('-created_at')
+        return ProjectRole.visible_objects.select_related('user', 'project').order_by('-created_at')
 
     def get_serializer_class(self):
         method = self.request.method
@@ -203,7 +214,17 @@ class ProjectRoleListCreateAPIView(CustomListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     
-    @extend_schema(tags=['ProjectRole'])
+    @extend_schema(
+        tags=['ProjectRole'],
+        parameters=[
+            OpenApiParameter(
+                name='disablePagination',
+                description='Set to true to disable pagination and return all results',
+                required=False,
+                type=bool
+            )
+        ]
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -272,7 +293,7 @@ class CommentListCreateAPIView(CustomListCreateAPIView):
     }
     
     def get_queryset(self):
-        return Comment.visible_objects.all().order_by('-created_at')
+        return Comment.visible_objects.select_related('user', 'project').order_by('-created_at')
 
     def get_serializer_class(self):
         method = self.request.method
@@ -285,7 +306,17 @@ class CommentListCreateAPIView(CustomListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
     
-    @extend_schema(tags=['Comment'])
+    @extend_schema(
+        tags=['Comment'],
+        parameters=[
+            OpenApiParameter(
+                name='disablePagination',
+                description='Set to true to disable pagination and return all results',
+                required=False,
+                type=bool
+            )
+        ]
+    )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
