@@ -125,9 +125,6 @@ class CommentListSerializer(serializers.ModelSerializer):
 
 
 class CommentCreateOrUpdateSerializer(serializers.ModelSerializer):
-    user = UserInfoSerialzer(read_only=True)
-    project = ProjectListSerializer(read_only=True)
-
     class Meta:
         model = Comment
         fields = ['project', 'text']

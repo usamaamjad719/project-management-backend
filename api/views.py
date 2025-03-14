@@ -92,14 +92,18 @@ class ProjectListCreateAPIView(CustomListCreateAPIView):
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     
-    search_fields = ['name', 'description', 'created_by', 'created_at', 'updated_at']
+    search_fields = ['name', 'description', 'created_by__first_name', 'created_by__last_name',
+                     'created_by__email', 'created_at', 'updated_at']
     
-    ordering_fields = ['name', 'description', 'created_by', 'created_at', 'updated_at']
+    ordering_fields = ['name', 'description', 'created_by__first_name', 'created_by__last_name',
+                     'created_by__email', 'created_at', 'updated_at']
     
     filterset_fields = {
         'name': ['exact', 'in'],
         'description': ['exact', 'in'],
-        'created_by': ['exact', 'in'],
+        'created_by__first_name': ['exact', 'in'],
+        'created_by__last_name': ['exact', 'in'],
+        'created_by__email': ['exact', 'in'],
         'created_at': ['exact', 'in'],
         'updated_at': ['exact', 'in'],
     }
@@ -154,6 +158,169 @@ class ProjectRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
         return super().put(request, *args, **kwargs)
     
     @extend_schema(tags=['Project'])
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+
+class ProjectRoleListCreateAPIView(CustomListCreateAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    
+    search_fields = [
+        'user__first_name', 'user__last_name', 'user__email', 'project__name', 'project__description', 
+        'role', 'created_at', 'updated_at'
+    ]
+    
+    ordering_fields = [
+        'user__first_name', 'user__last_name', 'user__email', 'project__name', 'project__description', 
+        'role', 'created_at', 'updated_at'
+    ]
+    
+    filterset_fields = {
+        'user__first_name': ['exact', 'in'],
+        'user__last_name': ['exact', 'in'],
+        'user__email': ['exact', 'in'],
+        'project__name': ['exact', 'in'],
+        'project__description': ['exact', 'in'],
+        'role': ['exact', 'in'],
+        'created_at': ['exact', 'in'],
+        'updated_at': ['exact', 'in'],
+    }
+    
+    def get_queryset(self):
+        return ProjectRole.visible_objects.all().order_by('-created_at')
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'GET':
+            return ProjectRoleListSerializer
+        elif method == 'POST':
+            return ProjectRoleCreateOrUpdateSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @extend_schema(tags=['ProjectRole'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(tags=['ProjectRole'])
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+
+class ProjectRoleRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = ProjectRole.visible_objects.all()
+    http_method_names = ['get', 'put', 'delete']
+    lookup_url_kwarg = 'id'
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'GET':
+            return ProjectRoleListSerializer
+        elif method == 'PUT':
+            return ProjectRoleCreateOrUpdateSerializer
+    
+    def perform_destroy(self, instance):
+        instance.soft_delete()
+
+    @extend_schema(tags=['ProjectRole'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(tags=['ProjectRole'])
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+    
+    @extend_schema(tags=['ProjectRole'])
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+
+
+class CommentListCreateAPIView(CustomListCreateAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    
+    search_fields = [
+        'project__name', 'project__description', 'user__first_name', 'user__last_name',
+        'user__email', 'text', 'created_at', 'updated_at'
+    ]
+    
+    ordering_fields = [
+        'project__name', 'project__description', 'user__first_name', 'user__last_name',
+        'user__email', 'text', 'created_at', 'updated_at'
+    ]
+    
+    filterset_fields = {
+        'project__name': ['exact', 'in'],
+        'project__description': ['exact', 'in'],
+        'user__first_name': ['exact', 'in'],
+        'user__last_name': ['exact', 'in'],
+        'user__email': ['exact', 'in'],
+        'text': ['exact', 'in'],
+        'created_at': ['exact', 'in'],
+        'updated_at': ['exact', 'in'],
+    }
+    
+    def get_queryset(self):
+        return Comment.visible_objects.all().order_by('-created_at')
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'GET':
+            return CommentListSerializer
+        elif method == 'POST':
+            return CommentCreateOrUpdateSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @extend_schema(tags=['Comment'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(tags=['Comment'])
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+
+class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = Comment.visible_objects.all()
+    http_method_names = ['get', 'put', 'delete']
+    lookup_url_kwarg = 'id'
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'GET':
+            return CommentListSerializer
+        elif method == 'PUT':
+            return CommentCreateOrUpdateSerializer
+    
+    def perform_destroy(self, instance):
+        instance.soft_delete()
+
+    @extend_schema(tags=['Comment'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(tags=['Comment'])
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+    
+    @extend_schema(tags=['Comment'])
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
 
